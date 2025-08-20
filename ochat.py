@@ -23,7 +23,9 @@ opts = iniproc.read("options.ini", 'model',     # 0
                                    'log',       # 4
                                    'editor',    # 5
                                    'font1',     # 6
-                                   'font2')     # 7
+                                   'font2',     # 7
+                                   'height',    # 8
+                                   'color')     # 9
 intro = f'''
 Welcome to OChat
     Ollama 'chat' API for most models
@@ -35,7 +37,9 @@ Current Options:
     log: {opts[4]}
     font1: {opts[6]}  {opts[1]}
     font2: {opts[7]}  {opts[2]}
+    color: {opts[9]}
     editor: {opts[5]}
+    prompt height: {opts[8]}
 '''
 
 class MyFrame(wx.Frame):
@@ -61,6 +65,7 @@ class MyFrame(wx.Frame):
         sizer.SetItemMinSize(self.text1, self.text1.GetSize().GetWidth(), 125)  # Set minimum height
         self.text1.Bind(wx.EVT_KEY_DOWN, self.on_key_down_hotkeys)
         self.text1.SetToolTip("Enter Prompt in this field")
+        sizer.SetItemMinSize(self.text1, self.text1.GetSize().GetWidth(), int(opts[8]))  # Height
         self.text1.SetFocus()
 
         # ----------------------------
@@ -75,7 +80,12 @@ class MyFrame(wx.Frame):
             flag=wx.EXPAND       # Allow both horizontal and vertical expansion
         )
         self.text2.Bind(wx.EVT_KEY_DOWN, self.on_key_down_hotkeys)
-        self.text2.SetValue(intro)
+        color_attr = wx.TextAttr()
+        color_attr.SetTextColour(wx.Colour(opts[9]))  # "color"
+        # Set the default style for all text written from now on
+        self.text2.SetDefaultStyle(color_attr)
+        self.text2.WriteText(intro)
+        #self.text2.SetValue(intro)
 
         # ----------------------------
         # Clear Button
@@ -332,10 +342,29 @@ class MyFrame(wx.Frame):
     def on_view(self, event):
         ''' view the current log
             if set to "on" in options '''
+        if not os.path.isfile("log.md"):
+            wx.MessageBox("Log File Not Found", "Oops!")
+            return
         with open("log.md", "r", encoding='utf-8') as fin:
             self.text2.SetValue(fin.read())
         self.text2.SetFocus()
         self.text2.SetInsertionPointEnd()
+
+
+    def delete_log(self):
+        ''' User presses Ctrl-D for option to delete log file '''
+        dlg = wx.MessageDialog(
+            self,
+            "Do you want to clear the current log file?",
+            "Clear Log Confirm",
+            wx.YES_NO | wx.NO_DEFAULT | wx.ICON_QUESTION
+        )
+        result = dlg.ShowModal()
+        dlg.Destroy()
+
+        if result == wx.ID_YES:
+            if os.path.isfile("log.md"):
+                os.remove("log.md")
 
 
     def on_submit(self, event):
@@ -424,6 +453,8 @@ class MyFrame(wx.Frame):
             self.openEditor()
         elif modifiers == wx.MOD_CONTROL and keycode == ord('H'):  # Ctrl+F: open search dialog.
             self.on_help_dialog()
+        elif modifiers == wx.MOD_CONTROL and keycode == ord('D'):  # Ctrl+D: delete log
+            self.delete_log()
         else:
             event.Skip()  # Ensure other key events are processed
 
@@ -512,7 +543,11 @@ class MyFrame(wx.Frame):
                                            'fontsz2',   # 2
                                            'role',      # 3
                                            'log',       # 4
-                                           'editor')    # 5
+                                           'editor',    # 5
+                                           'font1',     # 6
+                                           'font2',     # 7
+                                           'height',    # 8
+                                           'color')     # 9
         self.reLaunch()
 
 
@@ -524,6 +559,7 @@ class MyFrame(wx.Frame):
         Ctrl-Q     Quit App\n
         Ctrl-G     Execute AI request\n
         Ctrl-O     Open Options\n
+        Ctrl-D     Delete Log\n
         Alt-Ctrl-C
                    Copy Code in Markup\n
         '''

@@ -3,3 +3,9 @@ chat.py
 *.html
 *.json
 winfo
+build
+dist
+*.spec
+bkup_*
+ochat
+compile
