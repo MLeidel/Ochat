@@ -13,11 +13,13 @@ Suggest 32G memory and very fast CPU. GPU if you got it.
     
 ![image of the app on the desktop](images/startup.png "GUI")
 
-**Clear** Starts new conversation  
-**Export** Transfers response markdown to HTML in system default browser  
-**View log** View log text in the response pane  
-**Submit** Send query to the AI (Ctrl-G)  
-**Close** Exit application  
+<table>
+<tr><td>Clear</td><td>Starts new conversation</td></tr>
+<tr><td>Export</td><td>Transfers response markdown to HTML in system default browser</td></tr>
+<tr><td>View log</td><td>View log text in the response pane</td></tr>  
+<tr><td>Submit</td><td>Send query to the AI (Ctrl-G)</td></tr>  
+<tr><td>Close</td><td>Exit application</td></tr>  
+</table>
 
 ### Keyboard Commands
 
