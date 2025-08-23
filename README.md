@@ -71,7 +71,7 @@ edit the `options.ini` file by hitting Ctrl-O.
 On exiting the program, the conversation is not ended (deleted). Upon starting the program
 you are prompted to either start a new conversation or continue the previous one.
 
-The conversation is _temporary_ stored in a file called 'conversation.json'
+The conversation is _temporary_ and stored in a file called 'conversation.json'
 
 The program only saves each current conversation. Past conversations are not labeled and stored,
 but would be reflected in the 'log' until you delete the log (Ctrl-D).
