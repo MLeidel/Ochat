@@ -8,7 +8,6 @@ import iniproc
 import markdown
 import webbrowser
 import subprocess
-from time import localtime, strftime
 import wx
 import json
 import platform

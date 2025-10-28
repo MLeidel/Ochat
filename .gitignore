@@ -9,3 +9,4 @@ dist
 bkup_*
 ochat
 compile
+__pycache__
