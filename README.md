@@ -5,22 +5,22 @@ _Mostly for Linux (might work on Windows)_
 
 _GUI desktop AI client for conversing with
     Ollama's downloadable Models_
-    
+
 Of course you will need the Ollama runtime  
 download from  [Ollams.com](https://ollama.com/ "title")  
 
-Suggest 32G memory and a core i9 CPU, or GPU.
+Suggest 32G memory and a core i5 or better CPU, or GPU.
 
-<center>
-![image of the app on the desktop](images/startup.png "GUI")
-</center>
+ 
+&nbsp;&nbsp;&nbsp;![image of the app on the desktop](images/startup.png "GUI")
+                     
 
 | Button | Action | 
 | ---: | :--- | 
 |**Clear**|Starts new conversation|
 |**Export**|Transfers response markdown to HTML in system default browser|
 |**View log**|View log text in the response pane|
-|**Submit**|Send query to the AI (Ctrl-G)|
+|**Submit**|Send query to a downloaded AI model (Ctrl-G)|
 |**Close**|Exit application|
 
 ---
