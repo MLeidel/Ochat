@@ -389,16 +389,13 @@ class MyFrame(wx.Frame):
             {"role": "assistant", "content": ai_text}
         )
 
-        # 4) show it
+        # 4) save conversation to disk
+        self.save_buffer(self.conversation, self.cpath)
+
+        # 5) display response for this prompt
         self.text2.SetValue(ai_text)
 
-        # SAVE conversation to disk
-        self.save_buffer(self.conversation, self.cpath)
-        if ai_text == "":
-            self.text2.SetValue("")
-            self.text1.SetValue("")
-            return
-        self.text2.SetValue(ai_text)
+        # 6) Write messages to log if turned on
         if opts[4].lower() == "on":
             today = strftime("%a %d %b %Y", localtime())
             tm    = strftime("%H:%M", localtime())
