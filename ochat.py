@@ -39,6 +39,8 @@ Current Options:
     color: {opts[9]}
     editor: {opts[5]}
     prompt height: {opts[8]}
+
+    Ctrl-H for keyboard functions
 '''
 
 class MyFrame(wx.Frame):
@@ -141,7 +143,7 @@ class MyFrame(wx.Frame):
             flag=wx.EXPAND | wx.ALL, # Align to bottom-right
             border=5  # behaves like a "margin"
         )
-        submit_btn.SetToolTip(f"Submit prompt to {opts[1]} (Ctrl-G)")
+        submit_btn.SetToolTip("Submit prompt (Ctrl-G)")
         submit_btn.Bind(wx.EVT_BUTTON, self.on_submit)
 
         # ----------------------------
@@ -235,7 +237,7 @@ class MyFrame(wx.Frame):
             view_btn.Enable(False)
             view_btn.SetToolTip("Log is 'off'")
         else:
-            view_btn.SetToolTip("View past queries")
+            view_btn.SetToolTip("View current log")
 
         # get conversation status and initialize
 
@@ -409,12 +411,6 @@ class MyFrame(wx.Frame):
 
         # clear the input query box
         self.text1.SetValue("")
-        # Speak response, if speach is on ...
-        # if self.playback is True:
-        #     self.speak_text(ai_text)
-
-        # # put these token values into the status bar
-        # self.info_label.SetLabel(f"Tokens: Prompt {prompt}  Completion {completion}  Total: {total}")
 
 
     def gptCode(self, model: str, query: str) -> str:
@@ -553,7 +549,7 @@ class MyFrame(wx.Frame):
         Ctrl-F     Find text\n
         Ctrl-N     Find next\n
         Ctrl-Q     Quit App\n
-        Ctrl-G     Execute AI request\n
+        Ctrl-G     Submit AI request\n
         Ctrl-O     Open Options\n
         Ctrl-D     Delete Log\n
         Alt-Ctrl-C
