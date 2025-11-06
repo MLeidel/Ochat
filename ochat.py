@@ -391,11 +391,11 @@ class MyFrame(wx.Frame):
             {"role": "assistant", "content": ai_text}
         )
 
-        # 4) save conversation to disk
-        self.save_buffer(self.conversation, self.cpath)
-
-        # 5) display response for this prompt
+        # 4) display response for this prompt
         self.text2.SetValue(ai_text)
+
+        # 5) save conversation to disk
+        self.save_buffer(self.conversation, self.cpath)
 
         # 6) Write messages to log if turned on
         if opts[4].lower() == "on":
@@ -411,6 +411,7 @@ class MyFrame(wx.Frame):
 
         # clear the input query box
         self.text1.SetValue("")
+        self.text1.SetFocus()
 
 
     def gptCode(self, model: str, query: str) -> str:
