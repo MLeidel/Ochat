@@ -27,7 +27,7 @@ opts = iniproc.read("options.ini", 'model',     # 0
                                    'color')     # 9
 intro = f'''
 Welcome to OChat
-    Ollama 'chat' API for most models
+    Ollama 'chat' API for most local models
 
 Current Options:
 
@@ -52,41 +52,45 @@ class MyFrame(wx.Frame):
 
         self.cpath = "conversation.json"
 
-        # ----------------------------
-        # First Text Widget (text1) the Prompt area
-        # ----------------------------
-        # This TextCtrl will expand horizontally but not vertically
-        self.text1 = wx.TextCtrl(panel, style=wx.TE_MULTILINE)
-        sizer.Add(
-            self.text1,
-            pos=(0, 0),          # Position at row 0, column 0
-            span=(1, 5),         # Span of 1 row and 2 columns
-            flag=wx.EXPAND       # Allow horizontal expansion
-        )
-        sizer.SetItemMinSize(self.text1, self.text1.GetSize().GetWidth(), 125)  # Set minimum height
-        self.text1.Bind(wx.EVT_KEY_DOWN, self.on_key_down_hotkeys)
-        self.text1.SetToolTip("Enter Prompt in this field")
-        sizer.SetItemMinSize(self.text1, self.text1.GetSize().GetWidth(), int(opts[8]))  # Height
-        self.text1.SetFocus()
+        # Create the Splitter Window
 
-        # ----------------------------
-        # Second Text Widget (text2) the response area
-        # ----------------------------
-        # This TextCtrl will expand both horizontally and vertically
-        self.text2 = wx.TextCtrl(panel, style=wx.TE_MULTILINE)  # wx.TE_DONTWRAP
-        sizer.Add(
-            self.text2,
-            pos=(1, 0),          # Position at row 1, column 0
-            span=(1, 5),         # Span of 1 row and 2 columns
-            flag=wx.EXPAND       # Allow both horizontal and vertical expansion
-        )
+        self.splitter = wx.SplitterWindow(panel, style=wx.SP_LIVE_UPDATE | wx.SP_3D)
+
+        # 2. Initialize TextCtrl 1 (Prompt) - Parent is now self.splitter
+        self.text1 = wx.TextCtrl(self.splitter, style=wx.TE_MULTILINE)
+        self.text1.SetToolTip("Enter Prompt in this field")
+        self.text1.Bind(wx.EVT_KEY_DOWN, self.on_key_down_hotkeys)
+
+        # Initialize TextCtrl 2 (Response) - Parent is now self.splitter
+        self.text2 = wx.TextCtrl(self.splitter, style=wx.TE_MULTILINE)
         self.text2.Bind(wx.EVT_KEY_DOWN, self.on_key_down_hotkeys)
+        # Set the default style for all text written from now on
         color_attr = wx.TextAttr()
         color_attr.SetTextColour(wx.Colour(opts[9]))  # "color"
-        # Set the default style for all text written from now on
         self.text2.SetDefaultStyle(color_attr)
         self.text2.WriteText(intro)
-        #self.text2.SetValue(intro)
+
+        # This puts text1 on top and text2 on bottom
+        self.splitter.SplitHorizontally(self.text1, self.text2)
+
+        # Set the initial height of the top window (your opts[8])
+        self.splitter.SetSashPosition(int(opts[8]))
+        self.splitter.SetMinimumPaneSize(50) # Prevents windows from disappearing
+
+        # Add the Splitter to your existing Sizer instead of the individual text boxes
+        sizer.Add(
+            self.splitter,
+            pos=(0, 0),
+            span=(2, 5),      # Span 2 rows to cover the old pos(0,0) and pos(1,0)
+            flag=wx.EXPAND | wx.ALL,
+            border=5
+        )
+
+        # Allow the row/column to grow so the splitter can expand
+        sizer.AddGrowableRow(0)
+        sizer.AddGrowableCol(0)
+
+        # Buttons
 
         # ----------------------------
         # Clear Button
@@ -165,12 +169,12 @@ class MyFrame(wx.Frame):
         # ----------------------------
         # Configure Growable Columns and Rows
         # ----------------------------
-        sizer.AddGrowableCol(0, 1)    # Column 0 for Submit button & response area grows horizontally
+        #sizer.AddGrowableCol(0, 1)    # Column 0 for Submit button & response area grows horizontally
         sizer.AddGrowableCol(1, 1)    # Clear button grows horizontally
         sizer.AddGrowableCol(2, 1)    # Export button grows horizontally
         sizer.AddGrowableCol(3, 1)    #
         sizer.AddGrowableCol(4, 1)    #
-        sizer.AddGrowableRow(1, 1)    #
+        #sizer.AddGrowableRow(1, 1)    #
 
         panel.SetSizer(sizer)
 
@@ -331,7 +335,15 @@ class MyFrame(wx.Frame):
 
     def on_export(self, event):
         ''' convert MD file to HTML file and open in default browser '''
-        mdtext = self.text2.GetValue()
+        # did user select something?
+        selection = self.text2.GetSelection()
+        start, end = selection
+        if start != end:
+            # User has highlighted a specific block
+            mdtext = self.text2.GetRange(start, end)
+        else:
+            # No selection, get everything
+            mdtext = self.text2.GetValue()
         htmlText = markdown.markdown(mdtext, extensions=['tables', 'fenced_code'])
         htmlFile = "exported.html"
         # open in default browser
@@ -402,7 +414,7 @@ class MyFrame(wx.Frame):
             today = strftime("%a %d %b %Y", localtime())
             tm    = strftime("%H:%M", localtime())
             with open("log.md", "a", encoding="utf-8") as fout:
-                fout.write("\n\n=== Chat on %s %s ===\n\n" % (today, tm))
+                fout.write("\n\n=== Chat on %s %s === %s\n\n" % (today, tm, opts[0]))
                 #fout.write(f"{prompt}, {completion}, {total} \n\n")
                 for msg in self.conversation:
                     role = msg["role"]
@@ -438,9 +450,11 @@ class MyFrame(wx.Frame):
             self.doSearchDialog()
         elif modifiers == wx.MOD_CONTROL and keycode == ord('N'):  # Ctrl+N: find next occurrence.
             self.findNext()
-        elif modifiers == wx.MOD_CONTROL and keycode == ord('G'):
+        elif modifiers == wx.MOD_CONTROL and keycode == ord('G'):       # submit
             self.on_submit(event)
-        elif modifiers == wx.MOD_CONTROL and keycode == ord('Q'):
+        elif modifiers == wx.MOD_CONTROL and keycode == wx.WXK_RETURN:  # submit
+            self.on_submit(event)
+        elif modifiers == wx.MOD_CONTROL and keycode == ord('Q'):  # close app
             self.on_close(event)
         elif modifiers == wx.MOD_CONTROL and keycode == ord('O'):  # Ctrl+O: open editor with options
             self.openEditor()
@@ -551,6 +565,7 @@ class MyFrame(wx.Frame):
         Ctrl-N     Find next\n
         Ctrl-Q     Quit App\n
         Ctrl-G     Submit AI request\n
+        Ctrl-Enter Submit AI request\n
         Ctrl-O     Open Options\n
         Ctrl-D     Delete Log\n
         Alt-Ctrl-C

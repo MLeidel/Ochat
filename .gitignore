@@ -10,3 +10,4 @@ bkup_*
 ochat
 compile
 __pycache__
+log*
